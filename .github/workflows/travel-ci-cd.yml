@@ -27,8 +27,3 @@ jobs:
 
       - name: 테스트 코드 실행
         run: npm run test
-
-      - name: 프로젝트 실행
-        run: |
-          ^C
-          npm run start:dev
