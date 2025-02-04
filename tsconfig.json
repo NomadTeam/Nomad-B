@@ -19,8 +19,8 @@
     "noFallthroughCasesInSwitch": false,
     /* 절대 경로 설정 */
     "paths": {
-      "@data/*": ["./src/data/*"],
-      "@src/*": ["./src/*"]
+      "@src/*": ["./src/*"],
+      "@data/*": ["./src/data/*"]
     }
   }
 }
