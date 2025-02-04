@@ -25,16 +25,9 @@ jobs:
         run: |
           echo '${{secrets.ENV}}' > .env
 
-  test:
-    runs-on: ubuntu-latest
-    needs: init
-    steps:
       - name: 테스트 코드 실행
         run: npm run test
-  build:
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
+
       - name: 프로젝트 실행
         run: |
           ^C
