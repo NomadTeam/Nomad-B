@@ -1,0 +1,48 @@
+name: 여행지 추천 어플리케이션(dev)
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  init:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Github Repository 불러오기
+        uses: actions/checkout@v4
+
+      - name: Node 설치
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: 의존성 설치
+        run: npm ci
+
+      - name: env 파일 생성
+        run: |
+          echo '${{secrets.ENV}}' > .env
+
+      - name: 테스트 코드 실행
+        run: npm run test
+
+      - name: AWS EC2에 원격 접속
+        uses: appleboy/ssh-action@v1.2.0 # Github Actions 라이브러리
+        env:
+          ENV: ${{secrets.ENV}}
+        with:
+          host: ${{secrets.EC2_HOST}} # EC2 주소
+          username: ${{secrets.EC2_USERNAME}} # EC2 접속 username (ubuntu)
+          key: ${{secrets.EC2_PRIVATE_KEY}} # EC2 키페어 파일의 내부 텍스트
+          envs: ENV # 위에서 선언한 env 변수를 script에서 사용하기 위해 등록
+          script_stop: true # 아래 script 중 실패하는 명령어 하나라도 있으면 실패로 처리
+          script: |
+            cd /home/ubuntu/Nomad-B
+            rm -rf .env
+            git pull origin dev
+            echo "$ENV" > .env
+            npm i
+            npm run build
+            pm2 kill
+            pm2 start dist/main.js --name "backend-server"
