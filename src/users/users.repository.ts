@@ -11,7 +11,7 @@ export class UsersRepository {
   }
 
   async isDuplicateEmail(email: string) {
-    const sql = `SELECT COUNT(email) FROM users WHERE email = ${email}`;
+    const sql = `SELECT COUNT(email) as count FROM users WHERE email = "${email}"`;
     const [rows] = await this.pool.execute(sql);
     return rows;
   }
@@ -22,7 +22,7 @@ export class UsersRepository {
     name: string,
     password: string,
   ) {
-    const sql = `INSERT INTO users VALUES(${image}, ${email}, ${name}, ${password})`;
+    const sql = `INSERT INTO users VALUES("${email}", "${name}", "${password}", "${image}")`;
     const [rows] = await this.pool.execute(sql);
     return rows;
   }

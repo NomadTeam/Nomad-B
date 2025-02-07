@@ -20,7 +20,7 @@ export class UsersController {
   ) {
     return {
       err: null,
-      data: this.userService.signUpUser(profile, signUpUserData),
+      data: await this.userService.signUpUser(profile, signUpUserData),
     };
   }
 }

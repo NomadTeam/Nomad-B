@@ -23,23 +23,27 @@ export class UsersService {
     profile: Express.Multer.File,
     signUpUserData: signUpUserDTO,
   ) {
-    const { email, name, password, confirmPassword } = signUpUserData;
+    try {
+      const { email, name, password, confirmPassword } = signUpUserData;
 
-    // 이메일이 중복되는 경우
-    const isDuplicateEmail = await this.userDB.isDuplicateEmail(email);
-    if (isDuplicateEmail[0].count !== 0)
-      throw new BadRequestException('이미 존재하는 이메일입니다.');
+      // 이메일이 중복되는 경우
+      const isDuplicateEmail = await this.userDB.isDuplicateEmail(email);
+      if (isDuplicateEmail[0].count !== 0)
+        throw new BadRequestException('이미 존재하는 이메일입니다.');
 
-    // 비밀번호가 일치하지 않는 경우
-    if (password !== confirmPassword)
-      throw new BadRequestException('비밀번호가 일치하지 않습니다.');
+      // 비밀번호가 일치하지 않는 경우
+      if (password !== confirmPassword)
+        throw new BadRequestException('비밀번호가 일치하지 않습니다.');
 
-    const hashPassword = await bcrypt.hash(password, 10);
-    const profileUrl = await this.uploadProfile(email, profile);
+      const hashPassword = await bcrypt.hash(password, 10);
+      const profileUrl = await this.uploadProfile(email, profile);
 
-    await this.userDB.registerUser(profileUrl, email, name, hashPassword);
+      await this.userDB.registerUser(profileUrl, email, name, hashPassword);
 
-    return { profile: profileUrl, message: '회원가입 완료되었습니다 :)' };
+      return { profile: profileUrl, message: '회원가입 완료되었습니다 :)' };
+    } catch (e) {
+      throw { cause: e };
+    }
   }
 
   async uploadProfile(email: string, profile: Express.Multer.File) {
