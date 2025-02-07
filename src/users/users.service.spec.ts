@@ -73,9 +73,11 @@ describe('UsersService', () => {
     jest
       .spyOn(userRepository, 'isDuplicateEmail')
       .mockResolvedValue([{ count: 1 }] as RowDataPacket[]);
-    await expect(service.signUpUser(mockProfile, existedUser)).rejects.toThrow(
-      BadRequestException,
-    );
+    await expect(
+      service.signUpUser(mockProfile, existedUser),
+    ).rejects.toMatchObject({
+      cause: new BadRequestException('이미 존재하는 이메일입니다.'),
+    });
   });
 
   it('회원가입하려는 유저의 password와 confirmPassword가 불일치하는 경우 400 에러', async () => {
@@ -87,7 +89,9 @@ describe('UsersService', () => {
         ...newUser,
         confirmPassword: 'test123',
       }),
-    ).rejects.toThrow(BadRequestException);
+    ).rejects.toMatchObject({
+      cause: new BadRequestException('비밀번호가 일치하지 않습니다.'),
+    });
   });
 
   it('회원가입 성공', async () => {
