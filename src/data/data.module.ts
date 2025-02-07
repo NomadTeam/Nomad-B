@@ -3,5 +3,6 @@ import { ConnectRepository } from '@data/data.repository';
 
 @Module({
   providers: [ConnectRepository],
+  exports: [ConnectRepository],
 })
 export class DataModule {}

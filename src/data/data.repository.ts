@@ -10,8 +10,8 @@ export class ConnectRepository {
       host: process.env.DB_HOST,
       port: Number(process.env.DB_PORT),
       user: process.env.DB_USER,
-      password: process.env.PASSWORD,
-      database: process.env.DATABASE,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_DATABASE,
     });
   }
 
