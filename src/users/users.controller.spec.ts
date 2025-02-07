@@ -3,6 +3,7 @@ import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { UsersRepository } from './users.repository';
 import { DataModule } from '@data/data.module';
+import { JwtService } from '@nestjs/jwt';
 
 describe('UsersController', () => {
   let controller: UsersController;
@@ -11,7 +12,7 @@ describe('UsersController', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [DataModule],
       controllers: [UsersController],
-      providers: [UsersService, UsersRepository],
+      providers: [UsersService, UsersRepository, JwtService],
     }).compile();
 
     controller = module.get<UsersController>(UsersController);

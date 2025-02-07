@@ -1,16 +1,25 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { signUpUserDTO } from './dtos/sign-up-user.dto';
 import { UsersRepository } from './users.repository';
 import * as bcrypt from 'bcrypt';
 import * as AWS from 'aws-sdk';
 import * as path from 'path';
+import { loginUserDTO } from './dtos/login-user.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UsersService {
   private readonly awsS3: AWS.S3;
   public readonly S3_BUCKET: string;
 
-  constructor(private userDB: UsersRepository) {
+  constructor(
+    private userDB: UsersRepository,
+    private readonly jwtService: JwtService,
+  ) {
     this.awsS3 = new AWS.S3({
       accessKeyId: process.env.AWS_S3_ACCESS_KEY,
       secretAccessKey: process.env.AWS_S3_SECRET_KEY,
@@ -67,5 +76,35 @@ export class UsersService {
     }
 
     return key;
+  }
+
+  async logInUser(logInUserData: loginUserDTO) {
+    try {
+      const { email, password } = logInUserData;
+
+      const isExitedUser = await this.userDB.isDuplicateEmail(email);
+      if (isExitedUser[0].count !== 1)
+        throw new UnauthorizedException(
+          '이메일이나 비밀번호가 일치하지 않습니다.',
+        );
+
+      const foundUser = await this.userDB.findUserByEmail(email);
+      const isCorrect = await bcrypt.compare(password, foundUser[0].password);
+      if (isCorrect === false) {
+        throw new UnauthorizedException(
+          '이메일이나 비밀번호가 일치하지 않습니다.',
+        );
+      }
+      const token = this.jwtService.sign(
+        { email },
+        { secret: process.env.JWT_SECRET_KEY, expiresIn: '1h' },
+      );
+      return {
+        profile: foundUser[0].image,
+        token,
+      };
+    } catch (e) {
+      throw { cause: e };
+    }
   }
 }

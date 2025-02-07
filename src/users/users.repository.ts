@@ -26,4 +26,10 @@ export class UsersRepository {
     const [rows] = await this.pool.execute(sql);
     return rows;
   }
+
+  async findUserByEmail(email: string) {
+    const sql = `SELECT image, name, password FROM users WHERE email = "${email}"`;
+    const [rows] = await this.pool.execute(sql);
+    return rows;
+  }
 }
