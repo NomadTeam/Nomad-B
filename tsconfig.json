@@ -17,10 +17,13 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
+    "esModuleInterop": true,
     /* 절대 경로 설정 */
     "paths": {
-      "@src/*": ["./src/*"],
-      "@data/*": ["./src/data/*"]
+      "@users/*": ["./src/users/*"],
+      "@common/*": ["./src/common/*"],
+      "@data/*": ["./src/data/*"],
+      "@src/*": ["./src/*"]
     }
   }
 }
