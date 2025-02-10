@@ -19,14 +19,22 @@ export class DestinationService {
       perPage,
     );
 
-    if (Array.isArray(foundDestination)) {
-      return foundDestination.map((destination) => ({
-        id: destination.id,
-        name: destination.name,
-      }));
-    }
+    /**
+     * DB 결과가 배열이 아닌 경우,
+     * DB 결과가 빈 배열인 경우
+     */
+    if (
+      Array.isArray(foundDestination) === false ||
+      foundDestination.length === 0 ||
+      foundDestination.includes(null) ||
+      foundDestination.includes(undefined)
+    )
+      return [];
 
-    return [];
+    return foundDestination.map((destination) => ({
+      id: destination.id,
+      name: destination.name,
+    }));
   }
 
   /**
@@ -40,9 +48,15 @@ export class DestinationService {
       destinationList.map(async ({ id }) => {
         const foundImage = await this.destinationDB.getDestinationImageById(id);
 
-        return Array.isArray(foundImage)
-          ? foundImage.map((image) => image.image)
-          : [null];
+        if (
+          Array.isArray(foundImage) === false ||
+          foundImage.length === 0 ||
+          foundImage.some((result) => result === null || result === undefined)
+        ) {
+          return new Array(1).fill(null);
+        }
+
+        return foundImage.map((image) => image.image);
       }),
     );
   }
@@ -60,9 +74,18 @@ export class DestinationService {
       ),
     );
 
-    return Array.isArray(result)
-      ? result.map((recomm) => recomm[0].count)
-      : new Array(destinationList.length).fill(0);
+    if (
+      Array.isArray(result) === false ||
+      result.length === 0 ||
+      result.some((recomm) => recomm === null || recomm === undefined)
+    ) {
+      return new Array(destinationList.length).fill(0);
+    }
+
+    return result.map((recomm) => {
+      if (recomm[0] === undefined) return 0;
+      return recomm[0].count;
+    });
   }
 
   /**
