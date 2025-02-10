@@ -3,11 +3,12 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from '@src/app.module';
 import { HttpExceptionFilter } from '@common/filters/http-exception-filter';
 import cookieParser from 'cookie-parser';
+import { ErrorFilter } from '@common/filters/error-filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('/api');
-  app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalFilters(new ErrorFilter(), new HttpExceptionFilter());
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -16,6 +17,7 @@ async function bootstrap() {
     }),
   );
   app.use(cookieParser());
+  console.log(process.memoryUsage());
 
   await app.listen(process.env.PORT ?? 3000);
 }
