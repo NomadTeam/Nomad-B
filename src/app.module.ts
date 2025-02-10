@@ -7,6 +7,7 @@ import { UsersModule } from '@users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtGuard } from '@users/jwt/jwt.guard';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { JwtGuard } from '@users/jwt/jwt.guard';
     }),
     DataModule,
     UsersModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [
