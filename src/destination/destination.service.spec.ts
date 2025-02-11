@@ -112,7 +112,7 @@ describe('DestinationService', () => {
     });
   });
 
-  describe('getDestinationImageList Function', () => {
+  describe('getDestinationMainImage Function', () => {
     const mockError = [null, []];
     it('getDestinationImageById의 반환값이 빈 배열이거나 배열이 아닌 경우, null 값으로 채움', async () => {
       for (const err of mockError) {
@@ -121,17 +121,23 @@ describe('DestinationService', () => {
           .mockResolvedValue(err);
 
         expect(
-          await service.getDestinationImageList(mockErrDestination),
-        ).toStrictEqual([[null], [null]]);
+          await service.getDestinationMainImage(mockErrDestination),
+        ).toStrictEqual([{ image: null }, { image: null }]);
       }
     });
 
     it('getDestinationImageById의 반환값이 배열이면서 빈 값이 아닌 경우, 여행지별 이미지 반환', async () => {
       expect(
-        await service.getDestinationImageList(
-          mockDestination.map(({ id, name }) => ({ id, name })),
+        await service.getDestinationMainImage(
+          mockDestination.map(({ id }) => ({ id })),
         ),
-      ).toStrictEqual([['image'], ['image'], ['image'], ['image'], ['image']]);
+      ).toStrictEqual([
+        { image: 'image' },
+        { image: 'image' },
+        { image: 'image' },
+        { image: 'image' },
+        { image: 'image' },
+      ]);
     });
   });
 
