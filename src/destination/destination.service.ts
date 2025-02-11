@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { DestinationRepository } from './destination.repository';
+import { DestinationRepository } from '@destination/destination.repository';
 
 @Injectable()
 export class DestinationService {
@@ -66,7 +66,7 @@ export class DestinationService {
    * @returns 여행지별 추천도
    */
   async getRecommendation(
-    destinationList: { id: string; name: string }[],
+    destinationList: { id: string }[],
   ): Promise<number[]> {
     const result = await Promise.all(
       destinationList.map(
@@ -75,9 +75,9 @@ export class DestinationService {
     );
 
     if (
-      Array.isArray(result) === false ||
       result.length === 0 ||
-      result.some((recomm) => recomm === null || recomm === undefined)
+      result.includes(null) ||
+      result.includes(undefined)
     ) {
       return new Array(destinationList.length).fill(0);
     }
@@ -102,7 +102,9 @@ export class DestinationService {
         nameAndIdList.map(({ id }) => ({ id })),
       );
 
-      const recommendation = await this.getRecommendation(nameAndIdList);
+      const recommendation = await this.getRecommendation(
+        nameAndIdList.map(({ id }) => ({ id })),
+      );
 
       return nameAndIdList.map(({ id, name }, index) => ({
         ...mainImage[index],
@@ -145,8 +147,8 @@ export class DestinationService {
     if (Array.isArray(foundImage) === false) return [null];
 
     if (
-      foundImage === undefined ||
-      foundImage === null ||
+      foundImage.includes(undefined) ||
+      foundImage.includes(null) ||
       foundImage.length === 0
     )
       return [null];
@@ -162,11 +164,13 @@ export class DestinationService {
     try {
       const destination = await this.validateDestination(id);
       const imageList = await this.getDestinationImageList(id);
+      const recommendation = await this.getRecommendation([{ id }]);
 
       delete destination.id;
       return {
         image: imageList,
         ...destination,
+        recomm: recommendation[0],
       };
     } catch (e) {
       throw { cause: e };
