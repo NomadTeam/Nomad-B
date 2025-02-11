@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { DestinationRepository } from './destination.repository';
 
 @Injectable()
@@ -39,24 +39,24 @@ export class DestinationService {
 
   /**
    * @param destinationList 여행지별 아이디, 이름 리스트
-   * @returns 여행지별 이미지 리스트
+   * @returns 여행지별 대표 이미지
    */
-  async getDestinationImageList(
-    destinationList: { id: string; name: string }[],
-  ): Promise<string[][]> {
+  async getDestinationMainImage(destinationList: { id: string }[]) {
     return await Promise.all(
       destinationList.map(async ({ id }) => {
         const foundImage = await this.destinationDB.getDestinationImageById(id);
 
-        if (
-          Array.isArray(foundImage) === false ||
-          foundImage.length === 0 ||
-          foundImage.some((result) => result === null || result === undefined)
-        ) {
-          return new Array(1).fill(null);
-        }
+        if (Array.isArray(foundImage) === false)
+          return new Object({ image: null });
 
-        return foundImage.map((image) => image.image);
+        if (
+          foundImage.includes(null) ||
+          foundImage.includes(undefined) ||
+          foundImage.length === 0
+        )
+          return new Object({ image: null });
+
+        return foundImage[0];
       }),
     );
   }
@@ -98,14 +98,76 @@ export class DestinationService {
       const nameAndIdList = await this.getDestinationNameList(page, perPage);
       if (nameAndIdList.length === 0) return [];
 
-      const imageList = await this.getDestinationImageList(nameAndIdList);
+      const mainImage = await this.getDestinationMainImage(
+        nameAndIdList.map(({ id }) => ({ id })),
+      );
+
       const recommendation = await this.getRecommendation(nameAndIdList);
 
-      return nameAndIdList.map(({ name }, index) => ({
-        image: imageList[index],
+      return nameAndIdList.map(({ id, name }, index) => ({
+        ...mainImage[index],
+        id,
         name,
         recomm: recommendation[index],
       }));
+    } catch (e) {
+      throw { cause: e };
+    }
+  }
+
+  /**
+   * @param id 조회할 여행지 id
+   * @returns 여행지 정보(아이디, 이름, 주소, 설명, 위도, 경도, 카테고리)
+   */
+  async validateDestination(id: string) {
+    const foundDestination =
+      await this.destinationDB.findOneDestinationById(id);
+
+    if (Array.isArray(foundDestination) === false)
+      throw new NotFoundException('존재하지 않는 여행지입니다.');
+
+    if (
+      foundDestination.includes(null) ||
+      foundDestination.includes(undefined) ||
+      foundDestination.length === 0
+    )
+      throw new NotFoundException('존재하지 않는 여행지입니다.');
+
+    return Object(foundDestination[0]);
+  }
+
+  /**
+   * @param id 조회할 여행지 id
+   * @returns 해당 여행지의 이미지 리스트
+   */
+  async getDestinationImageList(id: string): Promise<string[]> {
+    const foundImage = await this.destinationDB.getDestinationImageById(id);
+    if (Array.isArray(foundImage) === false) return [null];
+
+    if (
+      foundImage === undefined ||
+      foundImage === null ||
+      foundImage.length === 0
+    )
+      return [null];
+
+    return foundImage.map((image) => image.image);
+  }
+
+  /**
+   * @param id 조회할 여행지 id
+   * @returns 상세 페이지 정보(이미지, 여행지명, 주소, 설명, 위도, 경도, 카테고리)
+   */
+  async getDetailDestination(id: string) {
+    try {
+      const destination = await this.validateDestination(id);
+      const imageList = await this.getDestinationImageList(id);
+
+      delete destination.id;
+      return {
+        image: imageList,
+        ...destination,
+      };
     } catch (e) {
       throw { cause: e };
     }

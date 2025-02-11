@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { DestinationService } from './destination.service';
 import { Public } from '@common/decorators/public.decorator';
 
@@ -13,5 +13,11 @@ export class DestinationController {
       err: null,
       data: await this.destinationService.getAllDestination(page.page),
     };
+  }
+
+  @Public()
+  @Get(':id')
+  async getDetailDestination(@Param('id') id: string) {
+    return await this.destinationService.getDetailDestination(id);
   }
 }

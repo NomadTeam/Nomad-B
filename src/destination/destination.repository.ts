@@ -26,4 +26,10 @@ export class DestinationRepository {
     const [rows] = await this.pool.execute(sql);
     return rows;
   }
+
+  async findOneDestinationById(id: string) {
+    const sql = `SELECT * FROM destination WHERE id = "${id}"`;
+    const [rows] = await this.pool.execute(sql);
+    return rows;
+  }
 }
