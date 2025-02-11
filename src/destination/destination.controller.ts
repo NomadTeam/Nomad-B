@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
-import { DestinationService } from './destination.service';
+import { DestinationService } from '@destination/destination.service';
 import { Public } from '@common/decorators/public.decorator';
 
 @Controller('destination')
