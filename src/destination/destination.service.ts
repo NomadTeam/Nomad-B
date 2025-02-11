@@ -113,7 +113,7 @@ export class DestinationService {
         recomm: recommendation[index],
       }));
     } catch (e) {
-      throw { cause: e };
+      throw e;
     }
   }
 
@@ -173,7 +173,7 @@ export class DestinationService {
         recomm: recommendation[0],
       };
     } catch (e) {
-      throw { cause: e };
+      throw e;
     }
   }
 }

@@ -51,7 +51,7 @@ export class UsersService {
 
       return { profile: profileUrl, message: '회원가입 완료되었습니다 :)' };
     } catch (e) {
-      throw { cause: e };
+      throw e;
     }
   }
 
@@ -104,7 +104,7 @@ export class UsersService {
         token,
       };
     } catch (e) {
-      throw { cause: e };
+      throw e;
     }
   }
 }
