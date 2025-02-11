@@ -76,6 +76,7 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "moduleNameMapper": {
+      "^@recommendation/(.*)$": "<rootDir>/recommendation/$1",
       "^@destination/(.*)$": "<rootDir>/destination/$1",
       "^@data/(.*)$": "<rootDir>/data/$1",
       "^@users/(.*)$": "<rootDir>/users/$1",
