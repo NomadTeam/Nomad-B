@@ -43,6 +43,7 @@ jobs:
             git pull origin dev
             echo "$ENV" > .env
             npm i
+            export NODE_OPTIONS="--max-old-space-size=4096"
             npm run build
             pm2 kill
             pm2 start dist/main.js --name "backend-server"
