@@ -8,6 +8,19 @@ import {
 } from '@destination/mocks/mock-data';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { QueryResult } from 'mysql2';
+import { DataModule } from '@data/data.module';
+import { ConnectRepository } from '@data/data.repository';
+const mockConnection = {
+  beginTransaction: jest.fn(),
+  commit: jest.fn(),
+  rollback: jest.fn(),
+  release: jest.fn(),
+  execute: jest.fn(),
+};
+
+const mockPool = {
+  getConnection: jest.fn().mockResolvedValue(mockConnection),
+};
 
 describe('RecommendationService', () => {
   let service: RecommendationService;
@@ -15,10 +28,10 @@ describe('RecommendationService', () => {
   let destRepository: DestinationRepository;
 
   const mockEmail = 'test@test.com';
-  const mockNewDestinationId = '78945';
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [DataModule],
       providers: [
         RecommendationService,
         {
@@ -35,7 +48,17 @@ describe('RecommendationService', () => {
           useValue: {
             findOneDestinationById: jest
               .fn()
-              .mockResolvedValue([mockDestination[0]]),
+              .mockImplementation((id: string) => {
+                if (id === mockDestination[0].id) return [mockDestination[0]];
+                if (id === mockDestination[1].id) return [mockDestination[1]];
+              }),
+            getRecommByDestId: jest.fn().mockResolvedValue([{ count: 1 }]),
+          },
+        },
+        {
+          provide: ConnectRepository,
+          useValue: {
+            getPool: jest.fn().mockReturnValue(mockPool),
           },
         },
       ],
@@ -46,6 +69,10 @@ describe('RecommendationService', () => {
       RecommendationRepository,
     );
     destRepository = module.get<DestinationRepository>(DestinationRepository);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('should be defined', () => {
@@ -72,9 +99,12 @@ describe('RecommendationService', () => {
     });
 
     it('pushRecommendation Function -> 추천도 +1', async () => {
-      expect(
-        await service.pushRecommendation(mockEmail, mockNewDestinationId),
-      ).toStrictEqual({ message: '추천 완료' });
+      const result = await service.pushRecommendation(
+        mockEmail,
+        mockDestination[1].id,
+      );
+
+      expect(result).toStrictEqual({ recomm: 1, message: '추천 완료' });
     });
   });
 });
