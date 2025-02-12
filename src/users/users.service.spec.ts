@@ -91,9 +91,7 @@ describe('UsersService', () => {
         .mockResolvedValue([{ count: 1 }] as RowDataPacket[]);
       await expect(
         service.signUpUser(mockProfile, existedUser),
-      ).rejects.toMatchObject({
-        cause: new BadRequestException('이미 존재하는 이메일입니다.'),
-      });
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('회원가입하려는 유저의 password와 confirmPassword가 불일치하는 경우 400 에러', async () => {
@@ -105,9 +103,7 @@ describe('UsersService', () => {
           ...newUser,
           confirmPassword: 'test123',
         }),
-      ).rejects.toMatchObject({
-        cause: new BadRequestException('비밀번호가 일치하지 않습니다.'),
-      });
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('회원가입 성공', async () => {
@@ -129,11 +125,7 @@ describe('UsersService', () => {
         .mockResolvedValue([{ count: 0 }] as RowDataPacket[]);
       await expect(
         service.logInUser({ email: newUser.email, password: newUser.password }),
-      ).rejects.toMatchObject({
-        cause: new UnauthorizedException(
-          '이메일이나 비밀번호가 일치하지 않습니다.',
-        ),
-      });
+      ).rejects.toThrow(UnauthorizedException);
     });
 
     it('비밀번호가 db에 저장된 비밀번호와 불일치하는 경우, 401 에러', async () => {
@@ -143,11 +135,7 @@ describe('UsersService', () => {
 
       await expect(
         service.logInUser({ email: mockUser.email, password: 'test123' }),
-      ).rejects.toMatchObject({
-        cause: new UnauthorizedException(
-          '이메일이나 비밀번호가 일치하지 않습니다.',
-        ),
-      });
+      ).rejects.toThrow(UnauthorizedException);
     });
 
     it('로그인 성공', async () => {

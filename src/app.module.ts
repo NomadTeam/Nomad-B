@@ -8,6 +8,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtGuard } from '@users/jwt/jwt.guard';
 import { CategoriesModule } from './categories/categories.module';
+import { DestinationModule } from './destination/destination.module';
+import { RecommendationModule } from './recommendation/recommendation.module';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { CategoriesModule } from './categories/categories.module';
     DataModule,
     UsersModule,
     CategoriesModule,
+    DestinationModule,
+    RecommendationModule,
   ],
   controllers: [AppController],
   providers: [

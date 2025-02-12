@@ -15,10 +15,13 @@ import { UsersService } from './users.service';
 import { loginUserDTO } from './dtos/login-user.dto';
 import { Response } from 'express';
 import { JwtGuard } from './jwt/jwt.guard';
+import { Public } from '@common/decorators/public.decorator';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
+
+  @Public()
   @Post('sign-up')
   @UseInterceptors(FileInterceptor('profile'))
   async signUpUser(
@@ -31,6 +34,7 @@ export class UsersController {
     };
   }
 
+  @Public()
   @HttpCode(200)
   @Post('log-in')
   async logInUser(
