@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { RecommendationRepository } from './recommendation.repository';
+import { RecommendationRepository } from '../recommendation.repository';
 import { DestinationRepository } from '@destination/destination.repository';
 import { error } from 'console';
 import * as mysql from 'mysql2/promise';

@@ -3,13 +3,14 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { signUpUserDTO } from './dtos/sign-up-user.dto';
-import { UsersRepository } from './users.repository';
+import { signUpUserDTO } from '../dtos/sign-up-user.dto';
+import { UsersRepository } from '../users.repository';
 import * as bcrypt from 'bcrypt';
 import * as AWS from 'aws-sdk';
 import * as path from 'path';
-import { loginUserDTO } from './dtos/login-user.dto';
+import { loginUserDTO } from '../dtos/login-user.dto';
 import { JwtService } from '@nestjs/jwt';
+import { authDto } from '@users/dtos/auth.dto';
 
 @Injectable()
 export class UsersService {
@@ -103,6 +104,29 @@ export class UsersService {
         profile: foundUser[0].image,
         token,
       };
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async authLogIn(user: authDto) {
+    try {
+      const foundUser = await this.userDB.isDuplicateEmail(user.email);
+      if (foundUser[0].count === 0) {
+        await this.userDB.registerUser(
+          user.image,
+          user.email,
+          user.name,
+          user.password,
+        );
+      }
+
+      const token = this.jwtService.sign(
+        { email: user.email },
+        { expiresIn: '1h', secret: process.env.JWT_SECRET_KEY },
+      );
+
+      return { profile: user.image, token };
     } catch (e) {
       throw e;
     }

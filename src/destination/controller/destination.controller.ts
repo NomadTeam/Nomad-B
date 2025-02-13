@@ -1,12 +1,10 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
-import { DestinationService } from '@destination/destination.service';
-import { Public } from '@common/decorators/public.decorator';
+import { DestinationService } from '@destination/service/destination.service';
 
 @Controller('destination')
 export class DestinationController {
   constructor(private readonly destinationService: DestinationService) {}
 
-  @Public()
   @Get()
   async getAllDestination(@Query() page: { page: number }) {
     return {
@@ -15,7 +13,6 @@ export class DestinationController {
     };
   }
 
-  @Public()
   @Get(':id')
   async getDetailDestination(@Param('id') id: string) {
     return await this.destinationService.getDetailDestination(id);

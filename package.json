@@ -35,7 +35,10 @@
     "class-validator": "^0.14.1",
     "cookie-parser": "^1.4.7",
     "mysql2": "^3.12.0",
+    "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
+    "passport-kakao": "^1.0.1",
+    "passport-naver": "^1.0.6",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1"
   },
@@ -76,6 +79,8 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "moduleNameMapper": {
+      "^@categories/(.*)$": "<rootDir>/categories/$1",
+      "^@auth/(.*)$": "<rootDir>/auth/$1",
       "^@recommendation/(.*)$": "<rootDir>/recommendation/$1",
       "^@destination/(.*)$": "<rootDir>/destination/$1",
       "^@data/(.*)$": "<rootDir>/data/$1",

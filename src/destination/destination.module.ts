@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { DestinationController } from '@destination/destination.controller';
-import { DestinationService } from '@destination/destination.service';
+import { DestinationController } from '@destination/controller/destination.controller';
+import { DestinationService } from '@destination/service/destination.service';
 import { DestinationRepository } from '@destination/destination.repository';
 import { DataModule } from '@data/data.module';
 
