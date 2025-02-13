@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RecommendationController } from './recommendation.controller';
-import { RecommendationService } from './recommendation.service';
-import { RecommendationRepository } from './recommendation.repository';
+import { RecommendationService } from '../service/recommendation.service';
+import { RecommendationRepository } from '../recommendation.repository';
 import { DataModule } from '@data/data.module';
 import { DestinationModule } from '@destination/destination.module';
 

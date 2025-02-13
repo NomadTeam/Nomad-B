@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DestinationController } from './destination.controller';
-import { DestinationService } from './destination.service';
-import { DestinationRepository } from './destination.repository';
+import { DestinationService } from '../service/destination.service';
+import { DestinationRepository } from '../destination.repository';
 import { DataModule } from '@data/data.module';
 
 describe('DestinationController', () => {

@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { DestinationService } from '@destination/destination.service';
+import { DestinationService } from '@destination/service/destination.service';
 import { DestinationRepository } from '@destination/destination.repository';
 import { NotFoundException } from '@nestjs/common';
 import { QueryResult } from 'mysql2';
@@ -10,7 +10,7 @@ import {
   mockErrDestination,
   mockErrStr,
   mockErrArr,
-} from './mocks/mock-data';
+} from '../../common/mocks/mock-data';
 
 describe('DestinationService', () => {
   let service: DestinationService;
