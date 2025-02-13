@@ -20,6 +20,8 @@
     "esModuleInterop": true,
     /* 절대 경로 설정 */
     "paths": {
+      "@categories/*": ["./src/categories/*"],
+      "@auth/*": ["./src/auth/*"],
       "@recommendation/*": ["./src/recommendation/*"],
       "@destination/*": ["./src/destination/*"],
       "@users/*": ["./src/users/*"],
