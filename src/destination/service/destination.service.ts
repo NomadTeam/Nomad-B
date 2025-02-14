@@ -38,7 +38,7 @@ export class DestinationService {
   }
 
   /**
-   * @param destinationList 여행지별 아이디, 이름 리스트
+   * @param destinationList 여행지별 아이디 리스트
    * @returns 여행지별 대표 이미지
    */
   async getDestinationMainImage(destinationList: { id: string }[]) {
@@ -62,7 +62,7 @@ export class DestinationService {
   }
 
   /**
-   * @param destinationList 여행지별 아이디, 이름 리스트
+   * @param destinationList 여행지별 아이디 리스트
    * @returns 여행지별 추천도
    */
   async getRecommendation(
