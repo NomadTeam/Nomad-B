@@ -1,29 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from './users.service';
-import * as bcrypt from 'bcrypt';
 import { DataModule } from '@data/data.module';
 import { UsersRepository } from '../users.repository';
 import { signUpUserDTO } from '../dtos/sign-up-user.dto';
 import { RowDataPacket } from 'mysql2';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-
-const mockProfile = {
-  fieldname: 'profile',
-  originalname: 'test.png',
-  encoding: '7bit',
-  mimetype: 'image/png',
-  buffer: Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
-  size: 419714,
-} as Express.Multer.File;
-
-const password = 'test1234!';
-
-const mockUser = {
-  email: 'test@test.com',
-  name: '신짱구',
-  password: bcrypt.hashSync(password, 10),
-};
+import { mockProfile, mockUser, password } from '@common/mocks/mock-data';
 
 describe('UsersService', () => {
   let service: UsersService;

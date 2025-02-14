@@ -10,7 +10,7 @@ import {
   mockErrDestination,
   mockErrStr,
   mockErrArr,
-} from '../../common/mocks/mock-data';
+} from '@common/mocks/mock-data';
 
 describe('DestinationService', () => {
   let service: DestinationService;
@@ -90,11 +90,11 @@ describe('DestinationService', () => {
           mockDestination.map(({ id }) => ({ id })),
         ),
       ).toStrictEqual([
-        { image: 'image' },
-        { image: 'image' },
-        { image: 'image' },
-        { image: 'image' },
-        { image: 'image' },
+        mockImage[0],
+        mockImage[0],
+        mockImage[0],
+        mockImage[0],
+        mockImage[0],
       ]);
     });
   });

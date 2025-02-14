@@ -1,3 +1,5 @@
+import * as bcrypt from 'bcrypt';
+
 export const mockDestination = [
   {
     id: '12345',
@@ -55,3 +57,20 @@ export const mockErrDestination = [
 
 export const mockErrStr: unknown = 'test';
 export const mockErrArr = [[null], []];
+
+export const mockProfile = {
+  fieldname: 'profile',
+  originalname: 'test.png',
+  encoding: '7bit',
+  mimetype: 'image/png',
+  buffer: Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+  size: 419714,
+} as Express.Multer.File;
+
+export const password = 'test1234!';
+
+export const mockUser = {
+  email: 'test@test.com',
+  name: '신짱구',
+  password: bcrypt.hashSync(password, 10),
+};
