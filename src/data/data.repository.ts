@@ -18,4 +18,10 @@ export class ConnectRepository {
   getPool(): mysql.Pool {
     return this.pool;
   }
+
+  async search(word: string, page: number, perPage: number) {
+    const sql = `SELECT * FROM destination WHERE name LIKE "%${word}%" OR address LIKE "%${word}%" OR information LIKE"%${word}%" LIMIT ${(page - 1) * perPage}, ${perPage}`;
+    const [rows] = await this.pool.execute(sql);
+    return rows;
+  }
 }
