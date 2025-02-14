@@ -6,7 +6,7 @@ import { signUpUserDTO } from '../dtos/sign-up-user.dto';
 import { RowDataPacket } from 'mysql2';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { mockProfile, mockUser, password } from '@common/mocks/mock-data';
+import { mockProfile, mockUser, password } from '@common/datas/mock-data';
 
 describe('UsersService', () => {
   let service: UsersService;

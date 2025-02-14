@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { RecommendationService } from './recommendation.service';
 import { RecommendationRepository } from '../recommendation.repository';
 import { DestinationRepository } from '@destination/destination.repository';
-import { mockDestination, mockErrDestination } from '@common/mocks/mock-data';
+import { mockDestination, mockErrDestination } from '@common/datas/mock-data';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { QueryResult } from 'mysql2';
 import { DataModule } from '@data/data.module';
