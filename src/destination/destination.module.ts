@@ -8,6 +8,6 @@ import { DataModule } from '@data/data.module';
   imports: [DataModule],
   controllers: [DestinationController],
   providers: [DestinationService, DestinationRepository],
-  exports: [DestinationRepository],
+  exports: [DestinationRepository, DestinationService],
 })
 export class DestinationModule {}
