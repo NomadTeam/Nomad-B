@@ -52,22 +52,26 @@ export class AppService {
    * @returns 검색 내용 결과 리스트
    */
   async search(search: string, page: number) {
-    const perPage = 20;
-    const words = search.split(' ');
-    const foundSearch = await this.findSearch(words, page, perPage);
+    try {
+      const perPage = 20;
+      const words = search.split(' ');
+      const foundSearch = await this.findSearch(words, page, perPage);
 
-    const mainImage = await this.destinationService.getDestinationMainImage(
-      foundSearch.map(({ id }) => ({ id })),
-    );
+      const mainImage = await this.destinationService.getDestinationMainImage(
+        foundSearch.map(({ id }) => ({ id })),
+      );
 
-    const recomm = await this.destinationService.getRecommendation(
-      foundSearch.map(({ id }) => ({ id })),
-    );
+      const recomm = await this.destinationService.getRecommendation(
+        foundSearch.map(({ id }) => ({ id })),
+      );
 
-    return foundSearch.map((result, index) => ({
-      ...mainImage[index],
-      ...result,
-      recomm: recomm[index],
-    }));
+      return foundSearch.map((result, index) => ({
+        ...mainImage[index],
+        ...result,
+        recomm: recomm[index],
+      }));
+    } catch (e) {
+      throw e;
+    }
   }
 }
