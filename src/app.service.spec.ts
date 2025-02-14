@@ -9,7 +9,7 @@ import {
   mockErrStr,
   mockImage,
   mockRecomm,
-} from '@common/mocks/mock-data';
+} from '@common/datas/mock-data';
 import { QueryResult } from 'mysql2';
 import { DestinationRepository } from '@destination/destination.repository';
 import * as mysql from 'mysql2/promise';
@@ -60,18 +60,18 @@ describe('AppService', () => {
     describe('findSearch Function', () => {
       it('검색 결과가 배열이 아닌 경우, 빈 배열 반환', async () => {
         jest.spyOn(db, 'search').mockResolvedValue(mockErrStr as QueryResult);
-        expect(await service.findSearch([], 1, 20)).toStrictEqual([]);
+        expect(await service.findSearch([], 1)).toStrictEqual([]);
       });
 
       it('검색 결과가 빈 배열이거나 null, undefined를 포함하는 경우, 빈 배열 반환', async () => {
         for (const err of mockErrArr) {
           jest.spyOn(db, 'search').mockResolvedValue(err);
-          expect(await service.findSearch(['에러'], 1, 20)).toStrictEqual([]);
+          expect(await service.findSearch(['에러'], 1)).toStrictEqual([]);
         }
       });
 
       it('검색 결과에 대한 여행지의 정보 리스트 반환', async () => {
-        expect(await service.findSearch(['여행지'], 1, 20)).toStrictEqual(
+        expect(await service.findSearch(['여행지'], 1)).toStrictEqual(
           mockDestination,
         );
       });

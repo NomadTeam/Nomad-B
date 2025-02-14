@@ -10,7 +10,7 @@ import {
   mockErrDestination,
   mockErrStr,
   mockErrArr,
-} from '@common/mocks/mock-data';
+} from '@common/datas/mock-data';
 
 describe('DestinationService', () => {
   let service: DestinationService;
@@ -53,18 +53,18 @@ describe('DestinationService', () => {
       jest
         .spyOn(destinationRepository, 'getAllDestination')
         .mockResolvedValue(mockErrStr as QueryResult);
-      expect(await service.getDestinationNameList(1, 10)).toStrictEqual([]);
+      expect(await service.getDestinationNameList(1)).toStrictEqual([]);
     });
 
     it('getAllDestination의 반환값이 빈 배열인 경우, 빈 배열 반환', async () => {
       jest
         .spyOn(destinationRepository, 'getAllDestination')
         .mockResolvedValue([]);
-      expect(await service.getDestinationNameList(1, 10)).toStrictEqual([]);
+      expect(await service.getDestinationNameList(1)).toStrictEqual([]);
     });
 
     it('여행지별 아이디 & 이름 반환', async () => {
-      expect(await service.getDestinationNameList(1, 10)).toStrictEqual(
+      expect(await service.getDestinationNameList(1)).toStrictEqual(
         mockDestination.map(({ id, name }) => ({ id, name })),
       );
     });
