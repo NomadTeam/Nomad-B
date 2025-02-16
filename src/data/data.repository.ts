@@ -1,3 +1,4 @@
+import { PERPAGE } from '@common/datas/constant-data';
 import { Injectable } from '@nestjs/common';
 import * as mysql from 'mysql2/promise';
 
@@ -17,5 +18,11 @@ export class ConnectRepository {
 
   getPool(): mysql.Pool {
     return this.pool;
+  }
+
+  async search(word: string, page: number) {
+    const sql = `SELECT * FROM destination WHERE name LIKE "%${word}%" OR address LIKE "%${word}%" OR information LIKE"%${word}%" LIMIT ${(page - 1) * PERPAGE}, ${PERPAGE}`;
+    const [rows] = await this.pool.execute(sql);
+    return rows;
   }
 }

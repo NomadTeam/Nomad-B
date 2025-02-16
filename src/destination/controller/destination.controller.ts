@@ -1,15 +1,37 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { DestinationService } from '@destination/service/destination.service';
+import { NAME, RECOMM } from '@common/datas/constant-data';
 
 @Controller('destination')
 export class DestinationController {
   constructor(private readonly destinationService: DestinationService) {}
 
   @Get()
-  async getAllDestination(@Query() page: { page: number }) {
+  async getAllDestination(
+    @Query('page') page: number,
+    @Query('sort') sort: number,
+  ) {
+    // 추천순 정렬
+    if (sort === RECOMM) {
+      return {
+        err: null,
+        data: await this.destinationService.getAllDestinationOrderByRecomm(
+          page,
+        ),
+      };
+    }
+
+    // 가나다순 정렬
+    if (sort === NAME) {
+      return {
+        err: null,
+        data: await this.destinationService.getAllDestinationOrderByName(page),
+      };
+    }
+
     return {
       err: null,
-      data: await this.destinationService.getAllDestination(page.page),
+      data: await this.destinationService.getAllDestination(page),
     };
   }
 
