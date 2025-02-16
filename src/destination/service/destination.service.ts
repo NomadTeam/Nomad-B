@@ -226,7 +226,7 @@ export class DestinationService {
   /**
    * 가나다순 API
    * @param page 조회할 페이지 번호
-   * @returns 이름 순순으로 여행지 리스트 반환(20개씩)
+   * @returns 이름 순으로 여행지 리스트 반환(20개씩)
    */
   async getAllDestinationOrderByName(page: number) {
     try {
