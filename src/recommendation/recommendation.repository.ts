@@ -31,4 +31,10 @@ export class RecommendationRepository {
     const [rows] = await this.pool.execute(sql);
     return rows;
   }
+
+  async deleteUsersLikeDestination(email: string, id: string) {
+    const sql = `DELETE FROM destination_recommendation WHERE user_email = "${email}" AND destination_id = "${id}"`;
+    const [rows] = await this.pool.execute(sql);
+    return rows;
+  }
 }

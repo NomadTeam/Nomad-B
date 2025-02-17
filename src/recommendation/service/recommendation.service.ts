@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -121,6 +122,51 @@ export class RecommendationService {
       }));
     } catch (e) {
       throw e;
+    }
+  }
+
+  /**
+   * 추천 취소 API와 관련된 데이터 유효성 검증 함수
+   * @param email 유저 이메일
+   * @param id 유저가 추천 취소하려는 여행지 ID
+   */
+  async validateDeleteData(email: string, id: string) {
+    const existedDestination = await this.destDB.findOneDestinationById(id);
+    if (
+      Array.isArray(existedDestination) === false ||
+      existedDestination.length === 0 ||
+      existedDestination.includes(null) ||
+      existedDestination.includes(undefined) ||
+      existedDestination[0] === undefined
+    )
+      throw new NotFoundException('존재하지 않는 여행지입니다.');
+
+    const foundDestination =
+      await this.recommDB.findOneRecommendationByEmailAndDestId(email, id);
+    if (foundDestination[0].count === 0) {
+      throw new ForbiddenException('추천한 여행지에 한하여 취소 가능합니다.');
+    }
+  }
+
+  /**
+   * 추천 취소 API
+   * @param email 유저 이메일
+   * @param id 유저가 추천 취소하려는 여행지 ID
+   */
+  async deleteUsersLike(email: string, id: string) {
+    const connection = await this.pool.getConnection();
+    try {
+      await connection.beginTransaction(); // 트랜잭션 시작
+
+      await this.validateDeleteData(email, id);
+      await this.recommDB.deleteUsersLikeDestination(email, id);
+
+      await connection.commit(); // 트랜잭션 커밋
+    } catch (e) {
+      await connection.rollback(); // 에러 발생 시 트랜잭션 롤백
+      throw e;
+    } finally {
+      connection.release(); // 커넥션 반환
     }
   }
 }

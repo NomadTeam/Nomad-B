@@ -1,4 +1,13 @@
-import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { RecommendationService } from '../service/recommendation.service';
 import { Request } from 'express';
 import { JwtGuard } from '@auth/jwt.guard';
@@ -26,5 +35,12 @@ export class RecommendationController {
         id,
       ),
     };
+  }
+
+  @HttpCode(204)
+  @Delete(':id')
+  @UseGuards(JwtGuard)
+  async deleteUsersLike(@Param('id') id: string, @Req() req: Request) {
+    return await this.recommService.deleteUsersLike(req.user.toString(), id);
   }
 }
