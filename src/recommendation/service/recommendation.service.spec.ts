@@ -11,11 +11,16 @@ import {
   mockImage,
   mockUser,
 } from '@common/datas/mock-data';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { QueryResult } from 'mysql2';
 import { DataModule } from '@data/data.module';
 import { ConnectRepository } from '@data/data.repository';
 import { DestinationService } from '@destination/service/destination.service';
+
 const mockConnection = {
   beginTransaction: jest.fn(),
   commit: jest.fn(),
@@ -32,10 +37,6 @@ describe('RecommendationService', () => {
   let service: RecommendationService;
   let recommRepository: RecommendationRepository;
   let destRepository: DestinationRepository;
-
-  const mockDestinationsCopy = mockDestinationByOrder.map((dest) => ({
-    ...dest,
-  }));
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -64,9 +65,7 @@ describe('RecommendationService', () => {
         {
           provide: RecommendationRepository,
           useValue: {
-            findOneRecommendationByEmailAndDestId: jest
-              .fn()
-              .mockResolvedValue([{ count: 0 }]),
+            findOneRecommendationByEmailAndDestId: jest.fn(),
             addRecommendation: jest.fn(),
             getUsersLikeDestination: jest.fn().mockResolvedValue(
               mockDestinationByOrder.map(({ id }) => ({
@@ -131,6 +130,9 @@ describe('RecommendationService', () => {
     });
 
     it('pushRecommendation Function -> 추천도 +1', async () => {
+      jest
+        .spyOn(recommRepository, 'findOneRecommendationByEmailAndDestId')
+        .mockResolvedValue([{ count: 0 }] as QueryResult);
       const result = await service.pushRecommendation(
         mockUser.email,
         mockDestination[1].id,
@@ -166,6 +168,25 @@ describe('RecommendationService', () => {
         expect(
           await service.getDestinationIdList(1, mockUser.email),
         ).toStrictEqual(mockDestinationByOrder.map(({ id }) => id));
+      });
+    });
+  });
+
+  describe('추천 취소 API', () => {
+    describe('validateDeleteData Function', () => {
+      it('취소하려는 여행지를 조회한 결과가 배열이 아니거나 빈 배열이거나 null or undefined 포함하거나 존재하지 않는 경우, 404 에러', async () => {
+        await expect(
+          service.validateDeleteData(mockUser.email, mockErrDestination[0].id),
+        ).rejects.toThrow(NotFoundException);
+      });
+
+      it('취소하려는 여행지가 유저가 추천한 여행지가 아닌 경우, 403 에러', async () => {
+        jest
+          .spyOn(recommRepository, 'findOneRecommendationByEmailAndDestId')
+          .mockResolvedValue([{ count: 0 }] as QueryResult);
+        await expect(
+          service.validateDeleteData('test1@test.com', mockDestination[0].id),
+        ).rejects.toThrow(ForbiddenException);
       });
     });
   });
