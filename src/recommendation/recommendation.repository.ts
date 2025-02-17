@@ -1,3 +1,4 @@
+import { PERPAGE } from '@common/datas/constant-data';
 import { ConnectRepository } from '@data/data.repository';
 import { Injectable } from '@nestjs/common';
 import * as mysql from 'mysql2/promise';
@@ -21,6 +22,12 @@ export class RecommendationRepository {
 
   async addRecommendation(email: string, destinationId: string) {
     const sql = `INSERT INTO destination_recommendation(destination_id, user_email) VALUES("${destinationId}","${email}")`;
+    const [rows] = await this.pool.execute(sql);
+    return rows;
+  }
+
+  async getUsersLikeDestination(page: number, email: string) {
+    const sql = `SELECT destination_id FROM destination_recommendation WHERE user_email = "${email}" LIMIT ${(page - 1) * PERPAGE}, ${PERPAGE}`;
     const [rows] = await this.pool.execute(sql);
     return rows;
   }

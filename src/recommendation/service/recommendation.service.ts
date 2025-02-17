@@ -8,6 +8,7 @@ import { DestinationRepository } from '@destination/destination.repository';
 import { error } from 'console';
 import * as mysql from 'mysql2/promise';
 import { ConnectRepository } from '@data/data.repository';
+import { DestinationService } from '@destination/service/destination.service';
 
 @Injectable()
 export class RecommendationService {
@@ -16,6 +17,7 @@ export class RecommendationService {
     private recommDB: RecommendationRepository,
     private destDB: DestinationRepository,
     private connectDB: ConnectRepository,
+    private destinationService: DestinationService,
   ) {
     this.pool = this.connectDB.getPool();
   }
@@ -60,6 +62,65 @@ export class RecommendationService {
       throw e;
     } finally {
       connection.release(); // 커넥션 반환
+    }
+  }
+
+  /**
+   * 유저가 좋아요 누른 여행지 id 리스트 반환하는 함수
+   * @param page 보여줄 여행지 페이지 번호
+   * @param email 유저 이메일
+   * @returns 유저가 좋아요 누른 여행지 id 리스트
+   */
+  async getDestinationIdList(page: number, email: string) {
+    const foundDestination = await this.recommDB.getUsersLikeDestination(
+      page,
+      email,
+    );
+    if (Array.isArray(foundDestination) === false) return [];
+    if (
+      foundDestination.length === 0 ||
+      foundDestination.includes(null) ||
+      foundDestination.includes(undefined)
+    )
+      return [];
+
+    return foundDestination.map((id) => id.destination_id);
+  }
+
+  /**
+   * 유저가 추천 누른 여행지 조회 API
+   * @param page 보여줄 여행지 페이지 번호
+   * @param email 유저 이메일
+   * @returns 유저가 추천 누른 여행지 정보 리스트(20개씩)
+   */
+  async getUsersLike(page: number, email: string) {
+    try {
+      const destinationIdList = await this.getDestinationIdList(page, email);
+
+      if (destinationIdList.length === 0) return [];
+      const destinationList = (
+        await Promise.all(
+          destinationIdList.map(
+            async (id) => await this.destDB.findOneDestinationById(id),
+          ),
+        )
+      ).flat();
+
+      const foundImage = await this.destinationService.getDestinationMainImage(
+        destinationIdList.map((id) => ({ id })),
+      );
+
+      const foundRecomm = await this.destinationService.getRecommendation(
+        destinationIdList.map((id) => ({ id })),
+      );
+
+      return destinationIdList.map((id, index) => ({
+        ...foundImage[index],
+        ...destinationList[index],
+        recomm: foundRecomm[index],
+      }));
+    } catch (e) {
+      throw e;
     }
   }
 }
