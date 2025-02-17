@@ -2,11 +2,20 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { RecommendationService } from './recommendation.service';
 import { RecommendationRepository } from '../recommendation.repository';
 import { DestinationRepository } from '@destination/destination.repository';
-import { mockDestination, mockErrDestination } from '@common/datas/mock-data';
+import {
+  mockDestination,
+  mockDestinationByOrder,
+  mockErrArr,
+  mockErrDestination,
+  mockErrStr,
+  mockImage,
+  mockUser,
+} from '@common/datas/mock-data';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { QueryResult } from 'mysql2';
 import { DataModule } from '@data/data.module';
 import { ConnectRepository } from '@data/data.repository';
+import { DestinationService } from '@destination/service/destination.service';
 const mockConnection = {
   beginTransaction: jest.fn(),
   commit: jest.fn(),
@@ -24,7 +33,9 @@ describe('RecommendationService', () => {
   let recommRepository: RecommendationRepository;
   let destRepository: DestinationRepository;
 
-  const mockEmail = 'test@test.com';
+  const mockDestinationsCopy = mockDestinationByOrder.map((dest) => ({
+    ...dest,
+  }));
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -32,12 +43,36 @@ describe('RecommendationService', () => {
       providers: [
         RecommendationService,
         {
+          provide: DestinationService,
+          useValue: {
+            getDestinationMainImage: jest
+              .fn()
+              .mockResolvedValue([
+                mockImage[0],
+                mockImage[0],
+                mockImage[0],
+                mockImage[0],
+                mockImage[0],
+              ]),
+            getRecommendation: jest
+              .fn()
+              .mockResolvedValue(
+                mockDestinationByOrder.map(({ recomm }) => recomm),
+              ),
+          },
+        },
+        {
           provide: RecommendationRepository,
           useValue: {
             findOneRecommendationByEmailAndDestId: jest
               .fn()
               .mockResolvedValue([{ count: 0 }]),
             addRecommendation: jest.fn(),
+            getUsersLikeDestination: jest.fn().mockResolvedValue(
+              mockDestinationByOrder.map(({ id }) => ({
+                destination_id: id,
+              })),
+            ),
           },
         },
         {
@@ -82,7 +117,7 @@ describe('RecommendationService', () => {
         .spyOn(destRepository, 'findOneDestinationById')
         .mockResolvedValue([]);
       await expect(
-        service.validateData(mockEmail, mockErrDestination[0].id),
+        service.validateData(mockUser.email, mockErrDestination[0].id),
       ).rejects.toThrow(NotFoundException);
     });
 
@@ -91,17 +126,47 @@ describe('RecommendationService', () => {
         .spyOn(recommRepository, 'findOneRecommendationByEmailAndDestId')
         .mockResolvedValue([{ count: 1 }] as QueryResult);
       await expect(
-        service.validateData(mockEmail, mockDestination[0].id),
+        service.validateData(mockUser.email, mockDestination[0].id),
       ).rejects.toThrow(BadRequestException);
     });
 
     it('pushRecommendation Function -> 추천도 +1', async () => {
       const result = await service.pushRecommendation(
-        mockEmail,
+        mockUser.email,
         mockDestination[1].id,
       );
 
       expect(result).toStrictEqual({ recomm: 1, message: '추천 완료' });
+    });
+  });
+
+  describe('유저가 추천 누른 여행지 조회 API', () => {
+    describe('getDestinationIdList Function', () => {
+      it('유저가 추천한 여행지를 조회한 결과가 배열이 아닌 경우, 빈 배열 반환', async () => {
+        jest
+          .spyOn(recommRepository, 'getUsersLikeDestination')
+          .mockResolvedValue(mockErrStr as QueryResult);
+        expect(
+          await service.getDestinationIdList(1, mockUser.email),
+        ).toStrictEqual([]);
+      });
+
+      it('유저가 추천한 여행지를 조회한 결과가 빈 배열이거나 null 또는 undefined를 포함하고 있는 경우, 빈 배열 반환', async () => {
+        for (const err of mockErrArr) {
+          jest
+            .spyOn(recommRepository, 'getUsersLikeDestination')
+            .mockResolvedValue(err);
+          expect(
+            await service.getDestinationIdList(1, mockUser.email),
+          ).toStrictEqual([]);
+        }
+      });
+
+      it('유저가 추천한 여행지 조회 후 여행지 id 리스트 반환', async () => {
+        expect(
+          await service.getDestinationIdList(1, mockUser.email),
+        ).toStrictEqual(mockDestinationByOrder.map(({ id }) => id));
+      });
     });
   });
 });
