@@ -77,7 +77,7 @@ export const mockUser = {
 
 export const mockDestinationByOrder = [
   {
-    id: '12345',
+    id: '23456',
     name: '여행지1',
     address: '주소1',
     information: '설명',
@@ -87,7 +87,7 @@ export const mockDestinationByOrder = [
     recomm: 5,
   },
   {
-    id: '12346',
+    id: '23457',
     name: '2여행지',
     address: '주소2',
     information: '설명',
@@ -97,7 +97,7 @@ export const mockDestinationByOrder = [
     recomm: 12,
   },
   {
-    id: '12347',
+    id: '23458',
     name: '여행지3',
     address: '주소3',
     information: '설명',
@@ -107,7 +107,7 @@ export const mockDestinationByOrder = [
     recomm: 2,
   },
   {
-    id: '12348',
+    id: '23459',
     name: '4여행지',
     address: '주소4',
     information: '설명',
@@ -117,7 +117,7 @@ export const mockDestinationByOrder = [
     recomm: 21,
   },
   {
-    id: '12349',
+    id: '23450',
     name: '여행지5',
     address: '주소5',
     information: '설명',
