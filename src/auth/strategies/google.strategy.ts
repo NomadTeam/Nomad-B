@@ -4,6 +4,13 @@ import { Strategy } from 'passport-google-oauth20';
 import * as bcrypt from 'bcrypt';
 import { authDto } from '@users/dtos/auth.dto';
 
+interface GoogleProfile {
+  id: string;
+  displayName: string;
+  emails: { value: string }[];
+  photos: { value: string }[];
+}
+
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   constructor() {
@@ -15,7 +22,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     });
   }
 
-  validate(accessToken: string, refreshToken: string, profile: any) {
+  validate(accessToken: string, refreshToken: string, profile: GoogleProfile) {
     try {
       const { id, displayName, emails, photos } = profile;
       const users: authDto = {

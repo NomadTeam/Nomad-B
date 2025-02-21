@@ -4,6 +4,19 @@ import { Strategy } from 'passport-kakao';
 import * as bcrypt from 'bcrypt';
 import { authDto } from '@users/dtos/auth.dto';
 
+interface KakaoProfile {
+  id: number;
+  _json: {
+    properties: {
+      nickname: string;
+      profile_image: string;
+    };
+    kakao_account: {
+      email: string;
+    };
+  };
+}
+
 @Injectable()
 export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
   constructor() {
@@ -13,7 +26,7 @@ export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
     });
   }
 
-  validate(accessToken: string, refreshToken: string, profile: any) {
+  validate(accessToken: string, refreshToken: string, profile: KakaoProfile) {
     try {
       const { id, _json } = profile;
 

@@ -4,6 +4,13 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-naver';
 import * as bcrypt from 'bcrypt';
 
+interface NaverProfile {
+  id: string;
+  displayName: string;
+  emails: { value: string }[];
+  _json: { profile_image: string };
+}
+
 @Injectable()
 export class NaverStrategy extends PassportStrategy(Strategy, 'naver') {
   constructor() {
@@ -15,7 +22,7 @@ export class NaverStrategy extends PassportStrategy(Strategy, 'naver') {
     });
   }
 
-  validate(accessToken: string, refreshToken: string, profile: any) {
+  validate(accessToken: string, refreshToken: string, profile: NaverProfile) {
     try {
       const { id, displayName, emails, _json } = profile;
       const user: authDto = {
