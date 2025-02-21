@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { DestinationService } from '@destination/service/destination.service';
-import { NAME, RECOMM } from '@common/datas/constant-data';
+import { NAME, RECOMMENDATION } from '@common/datas/constant-data';
 
 @Controller('destination')
 export class DestinationController {
@@ -12,7 +12,7 @@ export class DestinationController {
     @Query('sort') sort: number,
   ) {
     // 추천순 정렬
-    if (sort === RECOMM) {
+    if (sort === RECOMMENDATION) {
       return {
         err: null,
         data: await this.destinationService.getAllDestinationOrderByRecomm(
