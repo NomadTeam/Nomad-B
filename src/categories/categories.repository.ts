@@ -1,5 +1,5 @@
-import { ConnectRepository } from '@data/data.repository';
-import { Injectable } from '@nestjs/common';
+import { ConnectRepository, sqlErrorFunction } from '@data/data.repository';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import * as mysql from 'mysql2/promise';
 
 @Injectable()
@@ -10,8 +10,12 @@ export class CategoryRepository {
   }
 
   async getAllCategory() {
-    const sql = `SELECT name FROM categories ORDER BY name`;
-    const [rows] = await this.pool.execute(sql);
-    return rows;
+    try {
+      const sql = `SELECT name FROM categories ORDER BY name`;
+      const [rows] = await this.pool.execute(sql);
+      return rows;
+    } catch (e) {
+      throw new InternalServerErrorException(sqlErrorFunction(e));
+    }
   }
 }

@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { ConnectRepository } from '@data/data.repository';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { ConnectRepository, sqlErrorFunction } from '@data/data.repository';
 import * as mysql from 'mysql2/promise';
 
 @Injectable()
@@ -11,9 +11,13 @@ export class UsersRepository {
   }
 
   async isDuplicateEmail(email: string) {
-    const sql = `SELECT COUNT(email) as count FROM users WHERE email = "${email}"`;
-    const [rows] = await this.pool.execute(sql);
-    return rows;
+    try {
+      const sql = `SELECT COUNT(email) as count FROM users WHERE email = "${email}"`;
+      const [rows] = await this.pool.execute(sql);
+      return rows;
+    } catch (e) {
+      throw new InternalServerErrorException(sqlErrorFunction(e));
+    }
   }
 
   async registerUser(
@@ -22,14 +26,22 @@ export class UsersRepository {
     name: string,
     password: string,
   ) {
-    const sql = `INSERT INTO users VALUES("${email}", "${name}", "${password}", "${image}")`;
-    const [rows] = await this.pool.execute(sql);
-    return rows;
+    try {
+      const sql = `INSERT INTO users VALUES("${email}", "${name}", "${password}", "${image}")`;
+      const [rows] = await this.pool.execute(sql);
+      return rows;
+    } catch (e) {
+      throw new InternalServerErrorException(sqlErrorFunction(e));
+    }
   }
 
   async findUserByEmail(email: string) {
-    const sql = `SELECT image, name, password FROM users WHERE email = "${email}"`;
-    const [rows] = await this.pool.execute(sql);
-    return rows;
+    try {
+      const sql = `SELECT image, name, password FROM users WHERE email = ${email}"`;
+      const [rows] = await this.pool.execute(sql);
+      return rows;
+    } catch (e) {
+      throw new InternalServerErrorException(sqlErrorFunction(e));
+    }
   }
 }

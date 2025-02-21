@@ -1,6 +1,10 @@
 import { PERPAGE } from '@common/datas/constant-data';
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import * as mysql from 'mysql2/promise';
+
+export function sqlErrorFunction(error: { sqlMessage: string }) {
+  return { error: 'sql 에러', message: error.sqlMessage };
+}
 
 @Injectable()
 export class ConnectRepository {
@@ -21,8 +25,12 @@ export class ConnectRepository {
   }
 
   async search(word: string, page: number) {
-    const sql = `SELECT * FROM destination WHERE name LIKE "%${word}%" OR address LIKE "%${word}%" OR information LIKE"%${word}%" LIMIT ${(page - 1) * PERPAGE}, ${PERPAGE}`;
-    const [rows] = await this.pool.execute(sql);
-    return rows;
+    try {
+      const sql = `SELECT * FROM destination WHERE name LIKE "%${word}%" OR address LIKE "%${word}%" OR information LIKE"%${word}%" LIMIT ${(page - 1) * PERPAGE}, ${PERPAGE}`;
+      const [rows] = await this.pool.execute(sql);
+      return rows;
+    } catch (e) {
+      throw new InternalServerErrorException(sqlErrorFunction(e));
+    }
   }
 }
