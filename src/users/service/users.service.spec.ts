@@ -3,7 +3,6 @@ import { UsersService } from './users.service';
 import { DataModule } from '@data/data.module';
 import { UsersRepository } from '../users.repository';
 import { signUpUserDTO } from '../dtos/sign-up-user.dto';
-import { RowDataPacket } from 'mysql2';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { mockProfile, mockUser, password } from '@common/datas/mock-data';
@@ -71,7 +70,7 @@ describe('UsersService', () => {
     it('회원가입하려는 유저의 이메일이 db에 존재하는 경우 400 에러', async () => {
       jest
         .spyOn(userRepository, 'isDuplicateEmail')
-        .mockResolvedValue([{ count: 1 }] as RowDataPacket[]);
+        .mockResolvedValue([{ count: 1 }]);
       await expect(
         service.signUpUser(mockProfile, existedUser),
       ).rejects.toThrow(BadRequestException);
@@ -80,7 +79,7 @@ describe('UsersService', () => {
     it('회원가입하려는 유저의 password와 confirmPassword가 불일치하는 경우 400 에러', async () => {
       jest
         .spyOn(userRepository, 'isDuplicateEmail')
-        .mockResolvedValue([{ count: 0 }] as RowDataPacket[]);
+        .mockResolvedValue([{ count: 0 }]);
       await expect(
         service.signUpUser(mockProfile, {
           ...newUser,
@@ -92,7 +91,7 @@ describe('UsersService', () => {
     it('회원가입 성공', async () => {
       jest
         .spyOn(userRepository, 'isDuplicateEmail')
-        .mockResolvedValue([{ count: 0 }] as RowDataPacket[]);
+        .mockResolvedValue([{ count: 0 }]);
       const result = await service.signUpUser(mockProfile, newUser);
       expect(result).toStrictEqual({
         profile: result.profile,
@@ -105,7 +104,7 @@ describe('UsersService', () => {
     it('이메일이 db에 존재하지 않는 경우, 401 에러', async () => {
       jest
         .spyOn(userRepository, 'isDuplicateEmail')
-        .mockResolvedValue([{ count: 0 }] as RowDataPacket[]);
+        .mockResolvedValue([{ count: 0 }]);
       await expect(
         service.logInUser({ email: newUser.email, password: newUser.password }),
       ).rejects.toThrow(UnauthorizedException);
@@ -114,7 +113,7 @@ describe('UsersService', () => {
     it('비밀번호가 db에 저장된 비밀번호와 불일치하는 경우, 401 에러', async () => {
       jest
         .spyOn(userRepository, 'isDuplicateEmail')
-        .mockResolvedValue([{ count: 1 }] as RowDataPacket[]);
+        .mockResolvedValue([{ count: 1 }]);
 
       await expect(
         service.logInUser({ email: mockUser.email, password: 'test123' }),
@@ -124,7 +123,7 @@ describe('UsersService', () => {
     it('로그인 성공', async () => {
       jest
         .spyOn(userRepository, 'isDuplicateEmail')
-        .mockResolvedValue([{ count: 1 }] as RowDataPacket[]);
+        .mockResolvedValue([{ count: 1 }]);
 
       const result = await service.logInUser({
         email: mockUser.email,

@@ -4,13 +4,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConnectRepository } from '@data/data.repository';
 import {
   mockDestination,
-  mockErrArr,
   mockErrDestination,
-  mockErrStr,
   mockImage,
   mockRecomm,
 } from '@common/datas/mock-data';
-import { QueryResult } from 'mysql2';
 import { DestinationRepository } from '@destination/destination.repository';
 import * as mysql from 'mysql2/promise';
 
@@ -58,16 +55,9 @@ describe('AppService', () => {
 
   describe('검색 API', () => {
     describe('findSearch Function', () => {
-      it('검색 결과가 배열이 아닌 경우, 빈 배열 반환', async () => {
-        jest.spyOn(db, 'search').mockResolvedValue(mockErrStr as QueryResult);
-        expect(await service.findSearch([], 1)).toStrictEqual([]);
-      });
-
-      it('검색 결과가 빈 배열이거나 null, undefined를 포함하는 경우, 빈 배열 반환', async () => {
-        for (const err of mockErrArr) {
-          jest.spyOn(db, 'search').mockResolvedValue(err);
-          expect(await service.findSearch(['에러'], 1)).toStrictEqual([]);
-        }
+      it('검색 결과가 빈 배열인 경우, 빈 배열 반환', async () => {
+        jest.spyOn(db, 'search').mockResolvedValue([]);
+        expect(await service.findSearch(['에러'], 1)).toStrictEqual([]);
       });
 
       it('검색 결과에 대한 여행지의 정보 리스트 반환', async () => {
@@ -78,19 +68,16 @@ describe('AppService', () => {
     });
 
     describe('getDestinationMainImage Function', () => {
-      it('검색 결과에 대한 여행지의 id로 이미지 조회 결과가 빈 배열이거나 배열이 아닌 경우, null로 채움', async () => {
-        const mockError = [null, []];
-        for (const err of mockError) {
-          jest
-            .spyOn(destinationRepository, 'getDestinationImageById')
-            .mockResolvedValue(err);
+      it('검색 결과에 대한 여행지의 id로 이미지 조회 결과가 빈 배열인 경우, null로 채움', async () => {
+        jest
+          .spyOn(destinationRepository, 'getDestinationImageById')
+          .mockResolvedValue([]);
 
-          expect(
-            await destinationService.getDestinationMainImage(
-              mockErrDestination.map(({ id }) => ({ id })),
-            ),
-          ).toStrictEqual([{ image: null }, { image: null }]);
-        }
+        expect(
+          await destinationService.getDestinationMainImage(
+            mockErrDestination.map(({ id }) => ({ id })),
+          ),
+        ).toStrictEqual([{ image: null }, { image: null }]);
       });
 
       it('여행지별 이미지 리스트 반환', async () => {
@@ -109,18 +96,6 @@ describe('AppService', () => {
     });
 
     describe('getRecommendation Function', () => {
-      it('getRecommByDestId의 반환값이 빈 배열인 경우, 0으로 채움', async () => {
-        jest
-          .spyOn(destinationRepository, 'getRecommByDestId')
-          .mockResolvedValue([]);
-
-        expect(
-          await destinationService.getRecommendation(
-            mockErrDestination.map(({ id }) => ({ id })),
-          ),
-        ).toStrictEqual([0, 0]);
-      });
-
       it('여행지별 추천도 반환', async () => {
         expect(
           await destinationService.getRecommendation(

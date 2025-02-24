@@ -29,7 +29,7 @@ describe('CategoriesController', () => {
   it('카테고리 조회', async () => {
     expect(await controller.getAllCategory()).toStrictEqual({
       err: null,
-      data: { mockCategories },
+      data: { categories: mockCategories },
     });
   });
 });
