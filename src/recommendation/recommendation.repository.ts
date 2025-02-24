@@ -1,5 +1,6 @@
 import { PERPAGE } from '@common/datas/constant-data';
-import { ConnectRepository, sqlErrorFunction } from '@data/data.repository';
+import { CountType } from '@common/types/db-type';
+import { ConnectRepository, sqlError } from '@data/data.repository';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import * as mysql from 'mysql2/promise';
 
@@ -16,41 +17,42 @@ export class RecommendationRepository {
     destinationId: string,
   ) {
     try {
-      const sql = `SELECT count(id) as count FROM destination_recommendation WHERE user_email= "${email}" AND destination_id= "${destinationId}"`;
-      const [rows] = await this.pool.execute(sql);
-      return rows;
+      const sql = `SELECT count(id) as count FROM destination_recommendation WHERE user_email= ? AND destination_id= ?`;
+      const [rows] = await this.pool.execute(sql, [email, destinationId]);
+      return rows as CountType[];
     } catch (e) {
-      throw new InternalServerErrorException(sqlErrorFunction(e));
+      throw new InternalServerErrorException(sqlError(e));
     }
   }
 
   async addRecommendation(email: string, destinationId: string) {
     try {
-      const sql = `INSERT INTO destination_recommendation(destination_id, user_email) VALUES("${destinationId}","${email}")`;
-      const [rows] = await this.pool.execute(sql);
+      const sql = `INSERT INTO destination_recommendation(destination_id, user_email) VALUES(?,?)`;
+      const [rows] = await this.pool.execute(sql, [destinationId, email]);
       return rows;
     } catch (e) {
-      throw new InternalServerErrorException(sqlErrorFunction(e));
+      throw new InternalServerErrorException(sqlError(e));
     }
   }
 
   async getUsersLikeDestination(page: number, email: string) {
     try {
-      const sql = `SELECT destination_id FROM destination_recommendation WHERE user_email = "${email}" LIMIT ${(page - 1) * PERPAGE}, ${PERPAGE}`;
-      const [rows] = await this.pool.execute(sql);
-      return rows;
+      const offset = (page - 1) * PERPAGE;
+      const sql = `SELECT destination_id FROM destination_recommendation WHERE user_email = ? LIMIT ${offset}, ${PERPAGE}`;
+      const [rows] = await this.pool.execute(sql, [email]);
+      return rows as { destination_id: string }[];
     } catch (e) {
-      throw new InternalServerErrorException(sqlErrorFunction(e));
+      throw new InternalServerErrorException(sqlError(e));
     }
   }
 
   async deleteUsersLikeDestination(email: string, id: string) {
     try {
-      const sql = `DELETE FROM destination_recommendation WHERE user_email = "${email}" AND destination_id = "${id}"`;
-      const [rows] = await this.pool.execute(sql);
+      const sql = `DELETE FROM destination_recommendation WHERE user_email = ? AND destination_id = ?`;
+      const [rows] = await this.pool.execute(sql, [email, id]);
       return rows;
     } catch (e) {
-      throw new InternalServerErrorException(sqlErrorFunction(e));
+      throw new InternalServerErrorException(sqlError(e));
     }
   }
 }

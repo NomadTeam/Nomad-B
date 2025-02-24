@@ -1,6 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { ConnectRepository, sqlErrorFunction } from '@data/data.repository';
+import { ConnectRepository, sqlError } from '@data/data.repository';
 import * as mysql from 'mysql2/promise';
+import { CountType } from '@common/types/db-type';
 
 @Injectable()
 export class UsersRepository {
@@ -12,11 +13,11 @@ export class UsersRepository {
 
   async isDuplicateEmail(email: string) {
     try {
-      const sql = `SELECT COUNT(email) as count FROM users WHERE email = "${email}"`;
-      const [rows] = await this.pool.execute(sql);
-      return rows;
+      const sql = `SELECT COUNT(email) as count FROM users WHERE email = ?`;
+      const [rows] = await this.pool.execute(sql, [email]);
+      return rows as CountType[];
     } catch (e) {
-      throw new InternalServerErrorException(sqlErrorFunction(e));
+      throw new InternalServerErrorException(sqlError(e));
     }
   }
 
@@ -27,21 +28,26 @@ export class UsersRepository {
     password: string,
   ) {
     try {
-      const sql = `INSERT INTO users VALUES("${email}", "${name}", "${password}", "${image}")`;
-      const [rows] = await this.pool.execute(sql);
+      const sql = `INSERT INTO users VALUES(?, ?, ?, ?)`;
+      const [rows] = await this.pool.execute(sql, [
+        email,
+        name,
+        password,
+        image,
+      ]);
       return rows;
     } catch (e) {
-      throw new InternalServerErrorException(sqlErrorFunction(e));
+      throw new InternalServerErrorException(sqlError(e));
     }
   }
 
   async findUserByEmail(email: string) {
     try {
-      const sql = `SELECT image, name, password FROM users WHERE email = ${email}"`;
-      const [rows] = await this.pool.execute(sql);
-      return rows;
+      const sql = `SELECT image, name, password FROM users WHERE email = ?`;
+      const [rows] = await this.pool.execute(sql, [email]);
+      return rows as { image: string; name: string; password: string }[];
     } catch (e) {
-      throw new InternalServerErrorException(sqlErrorFunction(e));
+      throw new InternalServerErrorException(sqlError(e));
     }
   }
 }
