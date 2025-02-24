@@ -55,9 +55,6 @@ export const mockErrDestination = [
   { id: '34567', name: '카페1' },
 ];
 
-export const mockErrStr: unknown = 'test';
-export const mockErrArr = [[null], []];
-
 export const mockProfile = {
   fieldname: 'profile',
   originalname: 'test.png',
@@ -126,4 +123,11 @@ export const mockDestinationByOrder = [
     category: '카테고리3',
     recomm: 21,
   },
+];
+
+export const mockCategories = [
+  { name: '관광명소' },
+  { name: '국가유산' },
+  { name: '동물원' },
+  { name: '테마파크' },
 ];
