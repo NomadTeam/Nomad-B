@@ -21,8 +21,8 @@ export class ErrorFilter implements ExceptionFilter {
     this.logger.log(exception);
 
     response.status(status).json({
-      err: '서버 오류입니다. 잠시 후 다시 이용해주세요.',
-      data: null,
+      err: '알 수 없는 에러',
+      data: exception.message,
     });
   }
 }

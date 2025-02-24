@@ -23,7 +23,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: any) {
     const foundUser = await this.userDB.isDuplicateEmail(payload.email);
-    if (foundUser[0] === undefined) {
+    if (foundUser[0].count === 0) {
       throw new UnauthorizedException('인증되지 않은 사용자입니다.');
     }
     return payload.email;
