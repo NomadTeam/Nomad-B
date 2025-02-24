@@ -18,15 +18,6 @@ export class AppService {
     const searchList = await Promise.all(
       search.map(async (word) => {
         const foundDestination = await this.db.search(word, page);
-
-        if (Array.isArray(foundDestination) === false) return [];
-        if (
-          foundDestination.length === 0 ||
-          foundDestination.includes(null) ||
-          foundDestination.includes(undefined)
-        )
-          return [];
-
         return foundDestination;
       }),
     );
