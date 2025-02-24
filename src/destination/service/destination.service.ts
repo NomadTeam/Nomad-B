@@ -51,7 +51,7 @@ export class DestinationService {
       ),
     );
 
-    return result.length === 0 ? [0] : result.map((recomm) => recomm[0].count);
+    return result.map((recomm) => recomm[0].count);
   }
 
   /**
@@ -94,7 +94,7 @@ export class DestinationService {
     if (foundDestination.length === 0)
       throw new NotFoundException('존재하지 않는 여행지입니다.');
 
-    return Object(foundDestination[0]);
+    return foundDestination[0];
   }
 
   /**
