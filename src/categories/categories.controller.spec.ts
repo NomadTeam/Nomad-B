@@ -1,16 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CategoriesController } from './categories.controller';
 import { CategoryRepository } from './categories.repository';
+import { mockCategories } from '@common/datas/mock-data';
 
 describe('CategoriesController', () => {
   let controller: CategoriesController;
-
-  const categories = [
-    { name: '관광명소' },
-    { name: '국가유산' },
-    { name: '동물원' },
-    { name: '테마파크' },
-  ];
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -19,7 +13,7 @@ describe('CategoriesController', () => {
         {
           provide: CategoryRepository,
           useValue: {
-            getAllCategory: jest.fn().mockResolvedValue(categories),
+            getAllCategory: jest.fn().mockResolvedValue(mockCategories),
           },
         },
       ],
@@ -35,7 +29,7 @@ describe('CategoriesController', () => {
   it('카테고리 조회', async () => {
     expect(await controller.getAllCategory()).toStrictEqual({
       err: null,
-      data: { categories },
+      data: { mockCategories },
     });
   });
 });
