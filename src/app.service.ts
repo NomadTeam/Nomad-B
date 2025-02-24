@@ -22,17 +22,7 @@ export class AppService {
       }),
     );
 
-    return searchList.flat().map((result) => {
-      return {
-        id: result['id'],
-        name: result['name'],
-        address: result['address'],
-        information: result['information'],
-        latitude: result['latitude'],
-        longitude: result['longitude'],
-        category: result['category'],
-      };
-    });
+    return searchList.flat();
   }
 
   /**

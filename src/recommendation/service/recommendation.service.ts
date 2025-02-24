@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { RecommendationRepository } from '../recommendation.repository';
 import { DestinationRepository } from '@destination/destination.repository';
-import { error } from 'console';
 import * as mysql from 'mysql2/promise';
 import { ConnectRepository } from '@data/data.repository';
 import { DestinationService } from '@destination/service/destination.service';
@@ -29,10 +28,8 @@ export class RecommendationService {
    */
   async validateData(email: string, id: string) {
     const foundDestination = await this.destDB.findOneDestinationById(id);
-    if (foundDestination[0] === undefined) {
-      throw new NotFoundException('존재하지 않는 여행지입니다.', {
-        cause: error,
-      });
+    if (foundDestination.length === 0) {
+      throw new NotFoundException('존재하지 않는 여행지입니다.');
     }
 
     const foundRecommendation =
@@ -77,15 +74,10 @@ export class RecommendationService {
       page,
       email,
     );
-    if (Array.isArray(foundDestination) === false) return [];
-    if (
-      foundDestination.length === 0 ||
-      foundDestination.includes(null) ||
-      foundDestination.includes(undefined)
-    )
-      return [];
 
-    return foundDestination.map((id) => id.destination_id);
+    return foundDestination.length === 0
+      ? []
+      : foundDestination.map((id) => id.destination_id);
   }
 
   /**
@@ -132,13 +124,7 @@ export class RecommendationService {
    */
   async validateDeleteData(email: string, id: string) {
     const existedDestination = await this.destDB.findOneDestinationById(id);
-    if (
-      Array.isArray(existedDestination) === false ||
-      existedDestination.length === 0 ||
-      existedDestination.includes(null) ||
-      existedDestination.includes(undefined) ||
-      existedDestination[0] === undefined
-    )
+    if (existedDestination.length === 0)
       throw new NotFoundException('존재하지 않는 여행지입니다.');
 
     const foundDestination =

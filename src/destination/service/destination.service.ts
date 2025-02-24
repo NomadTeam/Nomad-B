@@ -1,13 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DestinationRepository } from '@destination/destination.repository';
-import { QueryResult } from 'mysql2';
 
 @Injectable()
 export class DestinationService {
   constructor(private destinationDB: DestinationRepository) {}
 
   /**
-   * @param page 보여줄 페이지
+   * @param page 보여줄 페이지 번호
    * @returns 조회한 여행지별 아이디, 이름 리스트
    */
   async getDestinationNameList(
@@ -15,22 +14,12 @@ export class DestinationService {
   ): Promise<{ id: string; name: string }[]> {
     const foundDestination = await this.destinationDB.getAllDestination(page);
 
-    /**
-     * DB 결과가 배열이 아닌 경우,
-     * DB 결과가 빈 배열인 경우
-     */
-    if (
-      Array.isArray(foundDestination) === false ||
-      foundDestination.length === 0 ||
-      foundDestination.includes(null) ||
-      foundDestination.includes(undefined)
-    )
-      return [];
-
-    return foundDestination.map((destination) => ({
-      id: destination.id,
-      name: destination.name,
-    }));
+    return foundDestination.length === 0
+      ? []
+      : foundDestination.map((destination) => ({
+          id: destination.id,
+          name: destination.name,
+        }));
   }
 
   /**
@@ -42,15 +31,7 @@ export class DestinationService {
       destinationList.map(async ({ id }) => {
         const foundImage = await this.destinationDB.getDestinationImageById(id);
 
-        if (Array.isArray(foundImage) === false)
-          return new Object({ image: null });
-
-        if (
-          foundImage.includes(null) ||
-          foundImage.includes(undefined) ||
-          foundImage.length === 0
-        )
-          return new Object({ image: null });
+        if (foundImage.length === 0) return new Object({ image: null });
 
         return foundImage[0];
       }),
@@ -70,18 +51,7 @@ export class DestinationService {
       ),
     );
 
-    if (
-      result.length === 0 ||
-      result.includes(null) ||
-      result.includes(undefined)
-    ) {
-      return new Array(destinationList.length).fill(0);
-    }
-
-    return result.map((recomm) => {
-      if (recomm[0] === undefined) return 0;
-      return recomm[0].count;
-    });
+    return result.length === 0 ? [0] : result.map((recomm) => recomm[0].count);
   }
 
   /**
@@ -121,14 +91,7 @@ export class DestinationService {
     const foundDestination =
       await this.destinationDB.findOneDestinationById(id);
 
-    if (Array.isArray(foundDestination) === false)
-      throw new NotFoundException('존재하지 않는 여행지입니다.');
-
-    if (
-      foundDestination.includes(null) ||
-      foundDestination.includes(undefined) ||
-      foundDestination.length === 0
-    )
+    if (foundDestination.length === 0)
       throw new NotFoundException('존재하지 않는 여행지입니다.');
 
     return Object(foundDestination[0]);
@@ -140,16 +103,10 @@ export class DestinationService {
    */
   async getDestinationImageList(id: string): Promise<string[]> {
     const foundImage = await this.destinationDB.getDestinationImageById(id);
-    if (Array.isArray(foundImage) === false) return [null];
 
-    if (
-      foundImage.includes(undefined) ||
-      foundImage.includes(null) ||
-      foundImage.length === 0
-    )
-      return [null];
-
-    return foundImage.map((image) => image.image);
+    return foundImage.length === 0
+      ? [null]
+      : foundImage.map((image) => image.image);
   }
 
   /**
@@ -174,40 +131,14 @@ export class DestinationService {
   }
 
   /**
-   * @param queryResult 쿼리 조회 결과
-   * @returns 여행지 정보 리스트(여행지 아이디, 이름, 주소, 설명, 위도, 경도, 카테고리, 추천도)
-   */
-  async foundDestinationBySort(queryResult: QueryResult) {
-    if (Array.isArray(queryResult) === false) return [];
-    if (
-      queryResult.length === 0 ||
-      queryResult.includes(null) ||
-      queryResult.includes(undefined)
-    )
-      return [];
-
-    return queryResult.map((result) => ({
-      id: result['id'],
-      name: result['name'],
-      address: result['address'],
-      information: result['information'],
-      latitude: result['latitude'],
-      longitude: result['longitude'],
-      category: result['category'],
-      recomm: result['recomm'],
-    }));
-  }
-
-  /**
    * 추천순 API
    * @param page - 조회할 페이지 번호
    * @returns 추천도가 높은 순으로 여행지 리스트 반환(20개씩)
    */
   async getAllDestinationOrderByRecomm(page: number) {
     try {
-      const queryResult =
+      const foundDestination =
         await this.destinationDB.getDestinationOrderByRecomm(page);
-      const foundDestination = await this.foundDestinationBySort(queryResult);
       if (foundDestination.length === 0) return [];
 
       const mainImage = await this.getDestinationMainImage(
@@ -230,9 +161,8 @@ export class DestinationService {
    */
   async getAllDestinationOrderByName(page: number) {
     try {
-      const queryResult =
+      const foundDestination =
         await this.destinationDB.getDestinationOrderByName(page);
-      const foundDestination = await this.foundDestinationBySort(queryResult);
       if (foundDestination.length === 0) return [];
 
       const mainImage = await this.getDestinationMainImage(
