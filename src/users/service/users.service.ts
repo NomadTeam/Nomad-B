@@ -6,7 +6,7 @@ import {
 import { signUpUserDTO } from '../dtos/sign-up-user.dto';
 import { UsersRepository } from '../users.repository';
 import * as bcrypt from 'bcrypt';
-import * as AWS from 'aws-sdk';
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import * as path from 'path';
 import { loginUserDTO } from '../dtos/login-user.dto';
 import { JwtService } from '@nestjs/jwt';
@@ -14,17 +14,19 @@ import { authDto } from '@users/dtos/auth.dto';
 
 @Injectable()
 export class UsersService {
-  private readonly awsS3: AWS.S3;
+  private readonly awsS3: S3Client;
   public readonly S3_BUCKET: string;
 
   constructor(
     private userDB: UsersRepository,
     private readonly jwtService: JwtService,
   ) {
-    this.awsS3 = new AWS.S3({
-      accessKeyId: process.env.AWS_S3_ACCESS_KEY,
-      secretAccessKey: process.env.AWS_S3_SECRET_KEY,
+    this.awsS3 = new S3Client({
       region: process.env.AWS_S3_REGION,
+      credentials: {
+        accessKeyId: process.env.AWS_S3_ACCESS_KEY,
+        secretAccessKey: process.env.AWS_S3_SECRET_KEY,
+      },
     });
     this.S3_BUCKET = process.env.AWS_S3_BUCKET_NAME;
   }
@@ -65,15 +67,15 @@ export class UsersService {
       );
 
     if (process.env.MODE !== 'test') {
-      await this.awsS3
-        .putObject({
-          Bucket: this.S3_BUCKET,
-          Key: key,
-          Body: profile.buffer,
-          ACL: 'public-read',
-          ContentType: 'jpg',
-        })
-        .promise();
+      const command = new PutObjectCommand({
+        Bucket: this.S3_BUCKET,
+        Key: key,
+        Body: profile.buffer,
+        ACL: 'public-read',
+        ContentType: 'image/jpg',
+      });
+
+      await this.awsS3.send(command);
     }
 
     return key;
