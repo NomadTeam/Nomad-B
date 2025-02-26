@@ -44,6 +44,12 @@ jobs:
             echo "$ENV" > .env
             npm i
             export NODE_OPTIONS="--max-old-space-size=4096"
-            npm run build
-            pm2 kill
-            pm2 start dist/main.js --name "backend-server"
+            echo $NODE_OPTIONS
+            sudo fallocate -l 2G /swapfile
+            sudo chmod 600 /swapfile
+            sudo mkswap /swapfile
+            sudo swapon /swapfile
+            free -m
+            docker-compose down
+            docker-compose up -d
+            docker-compose ps
