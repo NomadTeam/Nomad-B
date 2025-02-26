@@ -1,0 +1,37 @@
+version: '3.0'
+
+services:
+  travel-app:
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: travel-app
+    ports:
+      - '3000:3000'
+    env_file:
+      - './.env'
+    depends_on:
+      - mysql
+    networks:
+      - backend-server
+    volumes:
+      - ./src:/app/src
+
+mysql:
+  image: mysql:8.0
+  container_name: mysql
+  environment:
+    MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+    MYSQL_DATABASE: '${DB_DATABASE}'
+  ports:
+    - '3306:3306'
+  networks:
+    - backend-server
+  volumes:
+    - db_data:/var/lib/mysql
+
+volumes:
+  - db_data:
+
+networks:
+  backend-server:
