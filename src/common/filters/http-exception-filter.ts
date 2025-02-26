@@ -24,16 +24,16 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     if (status === 500) this.logger.error(error);
 
-    if (typeof error.message === 'string') {
-      response.status(status).json({
-        err: error.error,
-        data: error.message,
-      });
-    } else {
+    if (typeof error.message === 'object') {
       response.status(status).json({
         err: error.error,
         data: error.message[0],
       });
     }
+
+    response.status(status).json({
+      err: error.error,
+      data: error.message,
+    });
   }
 }
