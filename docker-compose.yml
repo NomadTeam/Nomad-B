@@ -41,8 +41,8 @@ services:
     ports:
       - '80:80'
     depends_on:
-      - db
-      - app
+      - mysql
+      - travel-app
     networks:
       - backend-server
 
