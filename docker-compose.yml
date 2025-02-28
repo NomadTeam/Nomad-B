@@ -4,7 +4,7 @@ services:
   travel-app:
     build:
       context: .
-      dockerfile: dockerfile
+      dockerfile: Dockerfile
     container_name: travel-app
     ports:
       - '3000:3000'
@@ -15,23 +15,39 @@ services:
     networks:
       - backend-server
     volumes:
-      - ./src:/app/src
+      - ./src:/Nomad-B/src
 
-mysql:
-  image: mysql:8.0
-  container_name: mysql
-  environment:
-    MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
-    MYSQL_DATABASE: '${DB_DATABASE}'
-  ports:
-    - '3306:3306'
-  networks:
-    - backend-server
-  volumes:
-    - db_data:/var/lib/mysql
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_DATABASE: '${DB_DATABASE}'
+    ports:
+      - '3306:3306'
+    networks:
+      - backend-server
+    volumes:
+      - db_data:/var/lib/mysql
+
+  nginx:
+    restart: unless-stopped
+    container_name: nginx-server
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - '80:80'
+    depends_on:
+      - db
+      - app
+    networks:
+      - backend-server
 
 volumes:
-  - db_data:
+  db_data:
 
 networks:
   backend-server:
