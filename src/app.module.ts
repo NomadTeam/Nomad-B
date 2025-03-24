@@ -12,6 +12,7 @@ import { JwtModule } from '@nestjs/jwt';
 @Module({
   imports: [
     ConfigModule.forRoot({
+      envFilePath: '../.env',
       isGlobal: true, // 전역 모듈로 선언
     }),
     DataModule,
