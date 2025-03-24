@@ -50,4 +50,24 @@ export class UsersRepository {
       throw new InternalServerErrorException(sqlError(e));
     }
   }
+
+  async updateUserNameByEmail(email: string, name: string) {
+    try {
+      const sql = `UPDATE users SET name = ? WHERE email = ?`;
+      const [rows] = await this.pool.execute(sql, [name, email]);
+      return rows;
+    } catch (e) {
+      throw new InternalServerErrorException(sqlError(e));
+    }
+  }
+
+  async updateUserPasswordByEmail(email: string, password: string) {
+    try {
+      const sql = `UPDATE users SET password = ? WHERE email = ?`;
+      const [rows] = await this.pool.execute(sql, [password, email]);
+      return rows;
+    } catch (e) {
+      throw new InternalServerErrorException(sqlError(e));
+    }
+  }
 }

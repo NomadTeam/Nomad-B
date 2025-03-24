@@ -1,3 +1,4 @@
+import { PickType } from '@nestjs/mapped-types';
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
 export class signUpUserDTO {
@@ -15,4 +16,11 @@ export class signUpUserDTO {
   @IsNotEmpty({ message: '비밀번호를 입력해주세요.' })
   @IsString({ message: '비밀번호는 문자열입니다.' })
   confirmPassword: string;
+}
+
+export class userNameDto extends PickType(signUpUserDTO, ['name']) {}
+export class userPasswordDto extends PickType(signUpUserDTO, ['password']) {
+  @IsNotEmpty({ message: '새 비밀번호를 입력해주세요.' })
+  @IsString({ message: '비밀번호는 문자열입니다.' })
+  newPassword: string;
 }

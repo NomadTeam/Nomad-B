@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   Post,
+  Put,
   Req,
   Res,
   UploadedFile,
@@ -11,10 +12,14 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { signUpUserDTO } from '../dtos/sign-up-user.dto';
+import {
+  signUpUserDTO,
+  userNameDto,
+  userPasswordDto,
+} from '../dtos/sign-up-user.dto';
 import { UsersService } from '../service/users.service';
 import { loginUserDTO } from '../dtos/login-user.dto';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { JwtGuard } from '../../auth/jwt.guard';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -98,5 +103,22 @@ export class UsersController {
 
     res.cookie('_uu', token, { httpOnly: true });
     return { err: null, data: { profile, message: '로그인 되었습니다 :)' } };
+  }
+
+  @Put('profile/name')
+  @UseGuards(JwtGuard)
+  async upateUserName(@Req() req: Request, @Body() name: userNameDto) {
+    await this.userService.updateUserName(name, req.user.toString());
+    return { err: null, data: { message: '이름이 변경되었습니다 :)' } };
+  }
+
+  @Put('profile/password')
+  @UseGuards(JwtGuard)
+  async updateUserPassword(
+    @Req() req: Request,
+    @Body() updateData: userPasswordDto,
+  ) {
+    await this.userService.updateUserPassword(updateData, req.user.toString());
+    return { err: null, data: { message: '비밀번호가 변경되었습니다 :)' } };
   }
 }

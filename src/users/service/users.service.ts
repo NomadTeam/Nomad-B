@@ -3,7 +3,11 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { signUpUserDTO } from '../dtos/sign-up-user.dto';
+import {
+  signUpUserDTO,
+  userNameDto,
+  userPasswordDto,
+} from '../dtos/sign-up-user.dto';
 import { UsersRepository } from '../users.repository';
 import * as bcrypt from 'bcrypt';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
@@ -132,5 +136,22 @@ export class UsersService {
     } catch (e) {
       throw e;
     }
+  }
+
+  async updateUserName(name: userNameDto, email: string) {
+    return await this.userDB.updateUserNameByEmail(email, name.name);
+  }
+
+  async updateUserPassword(updateData: userPasswordDto, email: string) {
+    const { password, newPassword } = updateData;
+    const foundUser = await this.userDB.findUserByEmail(email);
+    const isCorrect = await bcrypt.compare(password, foundUser[0].password);
+    if (isCorrect === false) {
+      throw new UnauthorizedException('인증되지 않은 사용자입니다.');
+    }
+
+    const hashPassword = await bcrypt.hash(newPassword, 10);
+
+    return await this.userDB.updateUserPasswordByEmail(email, hashPassword);
   }
 }
