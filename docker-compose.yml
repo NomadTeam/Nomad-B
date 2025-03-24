@@ -1,0 +1,58 @@
+version: '3.0'
+
+services:
+  travel-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: travel-app
+    ports:
+      - '3000:3000'
+    env_file:
+      - './.env'
+    depends_on:
+      - mysql
+    networks:
+      - backend-server
+    volumes:
+      - ./src:/Nomad-B/src
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_DATABASE: '${DB_DATABASE}'
+      TZ: Asia/Seoul
+      LANG: C.UTF-8
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_general_ci
+    ports:
+      - '3306:3306'
+    networks:
+      - backend-server
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./my.cnf:/etc/mysql/conf.d/my.cnf
+
+  nginx:
+    restart: unless-stopped
+    container_name: nginx-server
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - '80:80'
+    depends_on:
+      - mysql
+      - travel-app
+    networks:
+      - backend-server
+
+volumes:
+  db_data:
+
+networks:
+  backend-server:
